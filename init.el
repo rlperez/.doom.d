@@ -189,3 +189,15 @@
        :config
        ;;literate
        (default +bindings +smartparens))
+
+;; Make right-click do something sensible
+(when (display-graphic-p)
+  (context-menu-mode))
+
+;; Init cleanup
+(defun rlp--init-cleanup-gc ()
+  "Clean up gc."
+  (setopt gc-cons-threshold (* 1024 1024 128) ; 128M
+        max-specpdl-size 5000)
+  (garbage-collect))
+(run-with-idle-timer 4 nil #'rlp--init-cleanup-gc)
