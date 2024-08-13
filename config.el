@@ -132,3 +132,6 @@ If the new path's directories does not exist, create them."
  (lambda() (setq-local show-trailing-whitespace nil)))
 
 (setopt indicate-buffer-boundaries 'left)  ; Show buffer top and bottom in the margin
+
+(setopt vterm-shell "/bin/fish")
+(menu-bar-mode 1)
