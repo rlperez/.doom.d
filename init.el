@@ -88,7 +88,7 @@
        ;;ansible
        ;;biblio            ; Writes a PhD for you (citation needed)
        ;;collab            ; buffers with friends
-       ;;debugger          ; FIXME stepping through code, to help you add bugs
+       (debugger +lsp)         ; FIXME stepping through code, to help you add bugs
        direnv
        docker
        editorconfig      ; let someone else argue about tabs vs spaces
@@ -113,14 +113,14 @@
        :lang
        ;;agda              ; types of types of types of types...
        ;;beancount         ; mind the GAAP
-       ;;(cc +lsp)         ; C > C++ == 1
-       clojure           ; java with a lisp
+       (cc +lsp)         ; C > C++ == 1
+       (clojure +lsp +tree-sitter) ; java with a lisp
        common-lisp       ; if you've seen one lisp, you've seen them all
        ;;coq               ; proofs-as-programs
        ;;crystal           ; ruby at the speed of c
-       csharp            ; unity, .NET, and mono shenanigans
+       (csharp +dotnet +lsp +tree-sitter) ; unity, .NET, and mono shenanigans
        data              ; config/data formats
-       (dart +flutter)   ; paint ui and not much else
+       (dart +lsp +flutter)   ; paint ui and not much else
        ;;dhall
        ;;elixir            ; erlang done right
        ;;elm               ; care for a cup of TEA?
@@ -139,10 +139,10 @@
        ;;hy                ; readability of scheme w/ speed of python
        ;;idris             ; a language you can depend on
        json              ; At least it ain't XML
-       ;;(java +lsp)       ; the poster child for carpal tunnel syndrome
-       javascript        ; all(hope(abandon(ye(who(enter(here))))))
+       (java +lsp)       ; the poster child for carpal tunnel syndrome
+       (javascript +lsp)       ; all(hope(abandon(ye(who(enter(here))))))
        ;;julia             ; a better, faster MATLAB
-       kotlin            ; a better, slicker Java(Script)
+       (kotlin +lsp)           ; a better, slicker Java(Script)
        ;;latex             ; writing papers in Emacs has never been so fun
        ;;lean              ; for folks with too much to prove
        ;;ledger            ; be audit you can be
@@ -155,23 +155,23 @@
        ;;php               ; perl's insecure younger brother
        ;;plantuml          ; diagrams for confusing people more
        ;;purescript        ; javascript, but functional
-       python            ; beautiful is better than ugly
+       python           ; beautiful is better than ugly
        ;;qt                ; the 'cutest' gui framework ever
        ;;racket            ; a DSL for DSLs
        ;;raku              ; the artist formerly known as perl6
        ;;rest              ; Emacs as a REST client
        ;;rst               ; ReST in peace
-       (ruby +rails)     ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
+       (ruby +tree-sitter +lsp +rails)     ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
        (rust +lsp)       ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
        ;;scala             ; java, but good
        ;;(scheme +guile)   ; a fully conniving family of lisps
-       sh                ; she sells {ba,z,fi}sh shells on the C xor
+       (sh +tree-sitter)                ; she sells {ba,z,fi}sh shells on the C xor
        ;;sml
        ;;solidity          ; do you need a blockchain? No.
        ;;swift             ; who asked for emoji variables?
        ;;terra             ; Earth and Moon in alignment for performance.
        web               ; the tubes
-       yaml              ; JSON, but readable
+       (yaml +tree-sitter) ; JSON, but readable
        ;;zig               ; C, but simpler
 
        :email
@@ -182,22 +182,49 @@
        :app
        ;;calendar
        ;;emms
-       ;;everywhere        ; *leave* Emacs!? You must be joking
-       ;;irc               ; how neckbeards socialize
-       ;;(rss +org)        ; emacs as an RSS reader
+       everywhere        ; *leave* Emacs!? You must be joking
+       irc               ; how neckbeards socialize
+       (rss +org)        ; emacs as an RSS reader
 
        :config
        ;;literate
        (default +bindings +smartparens))
 
+(defun adjust-frame-width (frame)
+  (with-selected-frame frame
+    (let ((display-width (display-pixel-width)))
+      (set-frame-width frame (truncate (* 0.75 (/ display-width (frame-char-width))))))))
+(defun adjust-frame-height (frame)
+  (with-selected-frame frame
+    (let ((display-height (display-pixel-height)))
+      (set-frame-height frame display-height))))
+
+(add-hook 'after-make-frame-functions 'adjust-frame-height)
+(add-hook 'after-make-frame-functions 'adjust-frame-width)
+
+;; Set the size for the initial frame as well
+(setq initial-frame-alist '((top . 0) (left . 0)))
+
+;; A Flymake backend for Javascript using eslint
+;; https://github.com/orzechowskid/flymake-eslint/issues/23#issuecomment-1675481378
+;; (use-package flymake-eslint
+;;  :hook
+;;  (eglot-managed-mode . (lambda ()
+;;                          (when (and (derived-mode-p 'typescript-ts-mode 'typescript-mode 'web-mode 'js-mode)
+;;                                     (executable-find "eslint"))
+;;                            (flymake-eslint-enable)))))
+
 ;; Make right-click do something sensible
 (when (display-graphic-p)
   (context-menu-mode))
+
+;; Reload buffers if file changed externally.
+(global-auto-revert-mode)
 
 ;; Init cleanup
 (defun rlp--init-cleanup-gc ()
   "Clean up gc."
   (setopt gc-cons-threshold (* 1024 1024 128) ; 128M
-        max-specpdl-size 5000)
+          max-specpdl-size 5000)
   (garbage-collect))
 (run-with-idle-timer 4 nil #'rlp--init-cleanup-gc)
