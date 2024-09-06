@@ -90,11 +90,11 @@
 ;;
 ;; To get information about any of these functions/macros, move the cursor over
 ;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
-;; This will open documentation for it, including demos of how they are used.
+;; This will open documentation for it, including demos of hw they are used.
 ;; Alternatively, use `C-h o' to look up a symbol (functions, variables, faces,
 ;; etc).
 ;;
-;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
+;; You can also try 'gd' (or 'C-c/ c d') to jump to their definition and see how
 ;; they are implemented.
 (use-package! treesit-auto
   :defer t
@@ -112,6 +112,12 @@
   :hook
   (eglot-managed-mode . (lambda ()
                           (when (and (derived-mode-p 'typescript-ts-mode 'typescript-mode 'web-mode 'js-mode)
+                                     (or (file-exists-p ".eslintrc.js")
+                                         (file-exists-p ".eslint.ts")
+                                         (file-exists-p ".eslintrc.mjs")
+                                         (file-exists-p ".eslintrc.mts")
+                                         (file-exists-p ".eslintrc.cts")
+                                         (file-exists-p ".eslintrc.cjs"))
                                      (executable-find "eslint"))
                             (flymake-eslint-enable)))))
 
@@ -181,7 +187,6 @@ If the new path's directories does not exist, create them."
 
 ;;; Fix all of the things wrong with debug configurations...how the people that write this
 ;;; have left it in such a retarded non functional state
-(setopt dap-auto-configure-mode t)
 (after! dap-mode
   (require 'dap-cpptools)
   (require 'dap-python)
@@ -227,7 +232,9 @@ If the new path's directories does not exist, create them."
   (setopt neil-prompt-for-version-p nil
           neil-inject-dep-to-project-p t))
 (after! web-mode
-  (add-to-list 'auto-mode-alist '("\\.svelte\\'" . clojurescript-mode)))
+  (add-to-list 'auto-mode-alist '("\\.liquid\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.njk\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.htm??\\'" . web-mode)))
 
 (after! cider-mode
   (setopt cider-repl-buffer-size-limit 100000)
@@ -237,35 +244,8 @@ If the new path's directories does not exist, create them."
                         'cider-load-buffer
                         nil
                         'make-it-local))))
-
-;; TODO: Delete if this is otherwise working. Could be useful later though...
-;; (after! cider-mode
-;;   (add-hook 'cider-mode-hook
-;;             (lambda ()
-;;               (defun cider-after-save-restart-hook ()
-;;                 (cider-load-buffer)
-;;                 (let ((current-namespace (cider-current-ns))
-;;                       (prefixes '("thristysink"))) ; Your namespace prefixes
-;;                   (dolist (prefix prefixes)
-;;                     (when (string-prefix-p prefix current-namespace)
-;;                       ;; Construct the command using the prefix
-;;                       (let ((command (format "(%s.core/restart)\n" prefix)))
-;;                         ;; Send the command to the REPL
-;;                         (cider-repl--input-sender command)))))
-;;                 ))
-;;             (add-hook 'after-save-hook 'cider-after-save-restart-hook nil 'local)))
-
 (menu-bar-mode 1)
 (tool-bar-mode 0)
-
-;; A Flymake backend for Javascript using eslint
-;; https://github.com/orzechowskid/flymake-eslint/issues/23#issuecomment-1675481378
-;; (use-package flymake-eslint
-;;  :hook
-;;  (eglot-managed-mode . (lambda ()
-;;                          (when (and (derived-mode-p 'typescript-ts-mode 'typescript-mode 'web-mode 'js-mode)
-;;                                     (executable-find "eslint"))
-;;                            (flymake-eslint-enable)))))
 
 ;; Fix the retarded ass default behavior of project.el
 (defcustom project-root-markers
