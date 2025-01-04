@@ -6,7 +6,9 @@
  '(blink-cursor-mode nil)
  '(column-number-mode t)
  '(display-line-numbers-type nil)
- '(size-indication-mode t))
+ '(size-indication-mode t)
+ '(delete-selection-mode nil)
+ '(package-selected-packages '(vterm))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

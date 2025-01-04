@@ -3,7 +3,6 @@
 
 ;; To install a package with Doom you must declare them here and run 'doom sync'
 ;; on the command line, then restart Emacs for the changes to take effect -- or
-;; use 'M-x doom/reload'.
 
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
@@ -50,8 +49,16 @@
 ;; (unpin! t)
 (package! treesit-auto)
 (package! lsp-java)
-(package! neil :recipe (:host github :repo "babashka/neil" :files ("*.el")))
 (package! eglot-booster :recipe (:host github :repo "jdtsmith/eglot-booster" :files("*.el")))
 (package! kkp)
 (package! flymake-eslint)
 (package! clipetty)
+(package! just-mode)
+(package! mise)
+(package! emacs-eat :recipe (:host github
+                             :repo "kephale/emacs-eat"
+                             :files("*.el"
+                                    "dir"
+                                    "*.info"
+                                    "*.texi"
+                                    "*.ti" ("e" "e/*"))))

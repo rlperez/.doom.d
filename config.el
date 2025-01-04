@@ -6,6 +6,8 @@
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
+;; (setq user-full-name "John Doe"
+;;       user-mail-address "john@doe.com")
 (setq user-full-name "Rigoberto L. Perez"
       user-mail-address "rlperez@kablamo.me")
 
@@ -24,41 +26,28 @@
 ;;(setq doom-font (font-spec :family "Fira Code" :size 12 :weight 'semi-light)
 ;;      doom-variable-pitch-font (font-spec :family "Fira Sans" :size 13))
 ;;
-(setq doom-font (font-spec :family "Hasklug Nerd Font" :size 18)
-      doom-serif-font (font-spec :family "NotoSerif Nerd Font" :size 18)
-      doom-big-font (font-spec :family "Hasklug Nerd Font" :size 24)
-      doom-variable-pitch-font (font-spec :family "Latin Modern Sans" :size 16))
-(setq kill-whole-line t)
-(global-auto-revert-mode 1)
-(after! flycheck (setq flycheck-checker-error-threshold 250))
 ;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
 ;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
 ;; refresh your font settings. If Emacs still can't find your font, it likely
 ;; wasn't installed correctly. Font issues are rarely Doom issues!
+                                        ;(setq doom-font (font-spec :family "Hasklug Nerd Font" :size 18)
+                                        ;      doom-serif-font (font-spec :family "NotoSerif Nerd Font" :size 18)
+                                        ;      doom-big-font (font-spec :family "Hasklug Nerd Font" :size 24)
+                                        ;      doom-variable-pitch-font (font-spec :family "Latin Modern Sans" :size 16))
+(setq kill-whole-line t)
+(global-auto-revert-mode 1)
+(after! flycheck (setq flycheck-checker-error-threshold 250))
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-feather-dark)
-
-;; TODO: Figure out what part of this is not working
-;;(let ((alternatives (concat (mapcar (lambda (x) (concat "splashes/doom/" x))
-;;                                    (nthcdr 2 (directory-files (concat doom-user-dir ".doom.d/splashes/doom"))))
-;;                            (mapcar (lambda (x) (concat "splashes/emacs/" x))
-;;                                    (nthcdr 2 (directory-files (concat doom-user-dir ".doom.d/splashes/emacs"))))
-;;                            (mapcar (lambda (x) (concat "splashes/gnu/" x))
-;;                                    (nthcdr 2 (directory-files (concat doom-user-dir ".doom.d/splashes/gnu"))))
-;;                            (mapcar (lambda (x) (concat "splashes/others/" x))
-;;                                    (nthcdr 2 (directory-files (concat doom-user-dir ".doom.d/splashes/others")))))))
-;;  (setopt fancy-splash-image
-;;          (concat doom-user-dir ".doom.d/"
-;;                  (nth (random (length alternatives)) alternatives))))
+(setq doom-theme 'doom-one)
+;;(setq doom-theme 'doom-feather-dark)
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
-;; (setq display-ine-numbers-type 'nil)
+(setq display-line-numbers-type t)
 (display-line-numbers-mode 0)
-;; (line-number-mode)
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
@@ -90,11 +79,11 @@
 ;;
 ;; To get information about any of these functions/macros, move the cursor over
 ;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
-;; This will open documentation for it, including demos of hw they are used.
+;; This will open documentation for it, including demos of how they are used.
 ;; Alternatively, use `C-h o' to look up a symbol (functions, variables, faces,
 ;; etc).
 ;;
-;; You can also try 'gd' (or 'C-c/ c d') to jump to their definition and see how
+;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 (use-package! treesit-auto
   :defer t
@@ -106,8 +95,6 @@
   :after eglot
   :config (eglot-booster-mode))
 
-;; A Flymake backend for Javascript using eslint
-;; https://github.com/orzechowskid/flymake-eslint/issues/23#issuecomment-1675481378
 (use-package! flymake-eslint
   :hook
   (eglot-managed-mode . (lambda ()
@@ -136,18 +123,6 @@
 ;; Fix archaic defaults
 (setopt sentence-end-double-space nil
         require-final-newline t)
-
-;; Don't litter file system with *~ backup files; put them all inside
-;; ~/.emacs.d/backup or wherever
-(defun bedrock--backup-file-name (fpath)
-  "Return a new file path of a given file path.
-If the new path's directories does not exist, create them."
-  (let* ((backupRootDir "~/.emacs.d/emacs-backup/")
-         (filePath (replace-regexp-in-string "[A-Za-z]:" "" fpath )) ; remove Windows driver letter in path
-         (backupFilePath (replace-regexp-in-string "//" "/" (concat backupRootDir filePath "~") )))
-    (make-directory (file-name-directory backupFilePath) (file-name-directory backupFilePath))
-    backupFilePath))
-(setopt make-backup-file-name-function 'bedrock--backup-file-name)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -220,21 +195,46 @@ If the new path's directories does not exist, create them."
   (setopt eglot-events-buffer-size 0
           eglot-ignored-server-capabilities '(:inlayHintProvider)
           eglot-confirm-server-initiated-edits nil))
+
 (after! rustic
-  (setopt rustic-cargo-bin-remote "/usr/local/cargo/bin/cargo"
+  (setopt rustic-cargo-bin-remote "/home/fr0bar/.cargo/bin"
           rustic-lsp-client 'eglot))
+
+;; Don't litter file system with *~ backup files; put them all inside
+;; ~/.emacs.d/backup or wherever
+(defun bedrock--backup-file-name (fpath)
+  "Return a new file path of a given file path.
+If the new path's directories does not exist, create them."
+  (let* ((backupRootDir "~/.emacs.d/emacs-backup/")
+         (filePath (replace-regexp-in-string "[A-Za-z]:" "" fpath )) ; remove Windows driver letter in path
+         (backupFilePath (replace-regexp-in-string "//" "/" (concat backupRootDir filePath "~") )))
+    (make-directory (file-name-directory backupFilePath) (file-name-directory backupFilePath))
+    backupFilePath))
+(setopt make-backup-file-name-function 'bedrock--backup-file-name)
+
 (after! vterm
   (add-hook
    'vterm-mode-hook
-   (lambda() (setq-local show-trailing-whitespace nil)))
-  (setopt vterm-shell "/bin/fish"))
-(after! neil
-  (setopt neil-prompt-for-version-p nil
-          neil-inject-dep-to-project-p t))
+   (lambda() (setq-local show-trailing-whitespace t))))
+
+(after! emacs-eat
+  (setq eat-shell "fish")
+  (setq explicit-shell-file-name "/usr/bin/fish")
+  (add-hook 'eshell-first-time-mode-hook
+            #'eat-eshell-visual-command-mode)
+  (add-hook 'eshell-first-time-mode-hook #'eat-shell-mode)
+  (add-hook 'eat-mode-hook
+            (lambda ()
+              (setq-local explicit-shell-file-name "/usr/bin/fish"))))
+
 (after! web-mode
   (add-to-list 'auto-mode-alist '("\\.liquid\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.njk\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.htm??\\'" . web-mode)))
+
+(after! just-mode
+  (add-to-list 'auto-mode-alist '("\\.just\\'" . just-mode))
+  (add-to-list 'auto-mode-alist '("\\justfile\\(\\.\\)?.+" . just-mode)))
 
 (after! cider-mode
   (setopt cider-repl-buffer-size-limit 100000)
@@ -244,6 +244,27 @@ If the new path's directories does not exist, create them."
                         'cider-load-buffer
                         nil
                         'make-it-local))))
+
+(setopt show-trailing-whitespace t)
+
+(after! eglot
+  (setopt eglot-events-buffer-size 0
+          eglot-ignored-server-capabilities '(:inlayHintProvider)
+          eglot-confirm-server-initiated-edits nil))
+
+(after! vterm
+  (add-hook
+   'vterm-mode-hook
+   (lambda() (setq-local show-trailing-whitespace nil)))
+  (setopt vterm-shell "/bin/fish"))
+
+(after! mise
+  (add-hook 'after-init-hook #'global-mise-mode))
+
+(setq shell-file-name (executable-find "bash"))
+(setq-default vterm-shell (executable-find "fish"))
+(setq-default explicit-shell-file-name (executable-find "fish"))
+
 (menu-bar-mode 1)
 (tool-bar-mode 0)
 
@@ -252,7 +273,7 @@ If the new path's directories does not exist, create them."
   '("Cargo.toml" "compile_commands.json" "compile_flags.txt"
     "project.clj" ".git" "deps.edn" "shadow-cljs.edn" "package.json"
     "pom.xml" "build.xml" "build.gradle.kts" "build.gradle" "go.mod"
-    ".project.el" "project.el")
+    "*.sln" ".project.el" "project.el")
   "Files or directories that indicate the root of a project."
   :type '(repeat string)
   :group 'project)
@@ -269,26 +290,205 @@ If the new path's directories does not exist, create them."
   (when-let ((root (locate-dominating-file path #'project-root-p)))
     (cons 'transient (expand-file-name root))))
 
-(defun project-save-some-buffers (&optional arg)
-  "Save some modified file-visiting buffers in the current project.
-Optional argument ARG (interactively, prefix argument) non-nil
-means save all with no questions."
-  (let* ((project-buffers (project-buffers (project-current)))
-         (pred (lambda () (memq (current-buffer) project-buffers))))
-    (funcall-interactively #'save-some-buffers arg pred)))
+;; Function to setup mise environment for the current project
+(defun setup-mise-environment-for-project (project)
+  "Set up the environment for the PROJECT."
+  (when project
+    (let ((project-root (cdr project)))
+      (with-current-buffer (find-file-noselect project-root)
+        (call-process-shell-command "mise shell" nil nil nil)))))
 
-(define-advice project-compile (:around (fn) save-project-buffers)
-  "Only ask to save project-related buffers."
-  (let* ((project-buffers (project-buffers (project-current)))
-         (compilation-save-buffers-predicate
-          (lambda () (memq (current-buffer) project-buffers))))
-    (funcall fn)))
 
-(define-advice recompile (:around (fn &optional edit-command) save-project-buffers)
-  "Only ask to save project-related buffers if inside a project."
-  (if (project-current)
-      (let* ((project-buffers (project-buffers (project-current)))
-             (compilation-save-buffers-predicate
-              (lambda () (memq (current-buffer) project-buffers))))
-        (funcall fn edit-command))
-    (funcall fn edit-command)))
+
+;; Modify project-find-functions to run mise for recognized projects
+(add-hook 'project-find-functions (lambda (dir)
+                                    (when-let ((project (project-find-root dir)))
+                                      (setup-mise-environment-for-project project)
+                                      project)))
+;; TODO states
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "PLANNING(p)" "IN-PROGRESS(i@/!)" "VERIFYING(v!)" "BLOCKED(b@)"  "|" "DONE(d!)" "OBE(o@!)" "WONT-DO(w@/!)" )))
+
+
+;; TODO colors
+(setq org-todo-keyword-faces
+      '(
+        ("TODO" . (:foreground "GoldenRod" :weight bold))
+        ("PLANNING" . (:foreground "DeepPink" :weight bold))
+        ("IN-PROGRESS" . (:foreground "Cyan" :weight bold))
+        ("VERIFYING" . (:foreground "DarkOrange" :weight bold))
+        ("BLOCKED" . (:foreground "Red" :weight bold))
+        ("DONE" . (:foreground "LimeGreen" :weight bold))
+        ("OBE" . (:foreground "LimeGreen" :weight bold))
+        ("WONT-DO" . (:foreground "LimeGreen" :weight bold))))
+
+(setq org-tag-alist '(
+                      ;; Ticket types
+                      (:startgroup . nil)
+                      ("@bug" . ?b)
+                      ("@feature" . ?u)
+                      ("@spike" . ?j)
+                      (:endgroup . nil)
+
+                      ;; Ticket flags
+                      ("@write_future_ticket" . ?w)
+                      ("@emergency" . ?e)
+                      ("@research" . ?r)
+
+                      ;; Meeting types
+                      (:startgroup . nil)
+                      ("big_sprint_review" . ?i)
+                      ("cents_sprint_retro" . ?n)
+                      ("dsu" . ?d)
+                      ("grooming" . ?g)
+                      ("sprint_retro" . ?s)
+                      (:endgroup . nil)
+
+                      ;; Code TODOs tags
+                      ("QA" . ?q)
+                      ("backend" . ?k)
+                      ("broken_code" . ?c)
+                      ("frontend" . ?f)
+
+                      ;; Special tags
+                      ("CRITICAL" . ?x)
+                      ("obstacle" . ?o)
+
+                      ;; Meeting tags
+                      ("HR" . ?h)
+                      ("general" . ?l)
+                      ("meeting" . ?m)
+                      ("misc" . ?z)
+                      ("planning" . ?p)
+
+                      ;; Work Log Tags
+                      ("accomplishment" . ?a)))
+
+;; Agenda View "d"
+(defun air-org-skip-subtree-if-priority (priority)
+  "Skip an agenda subtree if it has a priority of PRIORITY.
+
+  PRIORITY may be one of the characters ?A, ?B, or ?C."
+  (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+        (pri-value (* 1000 (- org-lowest-priority priority)))
+        (pri-current (org-get-priority (thing-at-point 'line t))))
+    (if (= pri-value pri-current)
+        subtree-end
+      nil)))
+
+(setq org-agenda-skip-deadline-if-done t)
+
+(setq org-agenda-custom-commands
+      '(
+        ;; James's Super View
+        ("j" "James's Super View"
+         (
+          (agenda ""
+                  (
+                   (org-agenda-remove-tags t)
+                   (org-agenda-span 7)
+                   )
+                  )
+
+          (alltodo ""
+                   (
+                    ;; Remove tags to make the view cleaner
+                    (org-agenda-remove-tags t)
+                    (org-agenda-prefix-format "  %t  %s")
+                    (org-agenda-overriding-header "CURRENT STATUS")
+
+                    ;; Define the super agenda groups (sorts by order)
+                    (org-super-agenda-groups
+                     '(
+                       ;; Filter where tag is CRITICAL
+                       (:name "Critical Tasks"
+                        :tag "CRITICAL"
+                        :order 0
+                        )
+                       ;; Filter where TODO state is IN-PROGRESS
+                       (:name "Currently Working"
+                        :todo "IN-PROGRESS"
+                        :order 1
+                        )
+                       ;; Filter where TODO state is PLANNING
+                       (:name "Planning Next Steps"
+                        :todo "PLANNING"
+                        :order 2
+                        )
+                       ;; Filter where TODO state is BLOCKED or where the tag is obstacle
+                       (:name "Problems & Blockers"
+                        :todo "BLOCKED"
+                        :tag "obstacle"
+                        :order 3
+                        )
+                       ;; Filter where tag is @write_future_ticket
+                       (:name "Tickets to Create"
+                        :tag "@write_future_ticket"
+                        :order 4
+                        )
+                       ;; Filter where tag is @research
+                       (:name "Research Required"
+                        :tag "@research"
+                        :order 7
+                        )
+                       ;; Filter where tag is meeting and priority is A (only want TODOs from meetings)
+                       (:name "Meeting Action Items"
+                        :and (:tag "meeting" :priority "A")
+                        :order 8
+                        )
+                       ;; Filter where state is TODO and the priority is A and the tag is not meeting
+                       (:name "Other Important Items"
+                        :and (:todo "TODO" :priority "A" :not (:tag "meeting"))
+                        :order 9
+                        )
+                       ;; Filter where state is TODO and priority is B
+                       (:name "General Backlog"
+                        :and (:todo "TODO" :priority "B")
+                        :order 10
+                        )
+                       ;; Filter where the priority is C or less (supports future lower priorities)
+                       (:name "Non Critical"
+                        :priority<= "C"
+                        :order 11
+                        )
+                       ;; Filter where TODO state is VERIFYING
+                       (:name "Currently Being Verified"
+                        :todo "VERIFYING"
+                        :order 20
+                        )))))))))
+
+;; Tag colors
+(setq org-tag-faces
+      '(
+        ("planning"  . (:foreground "mediumPurple1" :weight bold))
+        ("backend"   . (:foreground "royalblue1"    :weight bold))
+        ("frontend"  . (:foreground "forest green"  :weight bold))
+        ("QA"        . (:foreground "sienna"        :weight bold))
+        ("meeting"   . (:foreground "yellow1"       :weight bold))
+        ("CRITICAL"  . (:foreground "red1"          :weight bold))))
+
+(setq org-capture-templates
+      '(
+        ("j" "Work Log Entry"
+         entry (file+datetree "~/org/work-log.org")
+         "* %?"
+         :empty-lines 0)
+        ("n" "Note"
+         entry (file+headline "~/org/notes.org" "Random Notes")
+         "** %?"
+         :empty-lines 0)
+        ("g" "General To-Do"
+         entry (file+headline "~/org/todos.org" "General Tasks")
+         "* TODO [#B] %?\n:Created: %T\n "
+         :empty-lines 0)
+	("c" "Code To-Do"
+         entry (file+headline "~/org/todos.org" "Code Related Tasks")
+         "* TODO [#B] %?\n:Created: %T\n%i\n%a\nProposed Solution: "
+         :empty-lines 0)
+	("m" "Meeting"
+         entry (file+datetree "~/org/meetings.org")
+         "* %? :meeting:%^g \n:Created: %T\n** Attendees\n*** \n** Notes\n** Action Items\n*** TODO [#A] "
+         :tree-type week
+         :clock-in t
+         :clock-resume t
+         :empty-lines 0)))
