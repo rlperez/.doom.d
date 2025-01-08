@@ -30,10 +30,14 @@
 ;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
 ;; refresh your font settings. If Emacs still can't find your font, it likely
 ;; wasn't installed correctly. Font issues are rarely Doom issues!
-                                        ;(setq doom-font (font-spec :family "Hasklug Nerd Font" :size 18)
-                                        ;      doom-serif-font (font-spec :family "NotoSerif Nerd Font" :size 18)
-                                        ;      doom-big-font (font-spec :family "Hasklug Nerd Font" :size 24)
-                                        ;      doom-variable-pitch-font (font-spec :family "Latin Modern Sans" :size 16))
+(setq doom-font (font-spec :family "JetBrains Mono Nerd Font" :size 18)
+      ;; (font-spec :family "Hack Nerd Font" :size 18)
+      ;; (font-spec :family "JetBrains Mono Nerd Font" :size 18)
+      ;; (font-spec :family "Hasklug Nerd Font" :size 18)
+      doom-serif-font (font-spec :family "NotoSerif Nerd Font" :size 18)
+      doom-big-font (font-spec :family "Hasklug Nerd Font" :size 24)
+      doom-variable-pitch-font (font-spec :family "Source Sans Pro" :size 16))
+
 (setq kill-whole-line t)
 (global-auto-revert-mode 1)
 (after! flycheck (setq flycheck-checker-error-threshold 250))
@@ -273,7 +277,7 @@ If the new path's directories does not exist, create them."
   '("Cargo.toml" "compile_commands.json" "compile_flags.txt"
     "project.clj" ".git" "deps.edn" "shadow-cljs.edn" "package.json"
     "pom.xml" "build.xml" "build.gradle.kts" "build.gradle" "go.mod"
-    "*.sln" ".project.el" "project.el")
+    "*.sln" "*.csproj" "*.fsproj" ".project.el" "project.el")
   "Files or directories that indicate the root of a project."
   :type '(repeat string)
   :group 'project)
@@ -297,8 +301,6 @@ If the new path's directories does not exist, create them."
     (let ((project-root (cdr project)))
       (with-current-buffer (find-file-noselect project-root)
         (call-process-shell-command "mise shell" nil nil nil)))))
-
-
 
 ;; Modify project-find-functions to run mise for recognized projects
 (add-hook 'project-find-functions (lambda (dir)
