@@ -32,7 +32,6 @@
 ;; wasn't installed correctly. Font issues are rarely Doom issues!
 (setq doom-font (font-spec :family "JetBrains Mono Nerd Font" :size 18)
       ;; (font-spec :family "Hack Nerd Font" :size 18)
-      ;; (font-spec :family "JetBrains Mono Nerd Font" :size 18)
       ;; (font-spec :family "Hasklug Nerd Font" :size 18)
       doom-serif-font (font-spec :family "NotoSerif Nerd Font" :size 18)
       doom-big-font (font-spec :family "Hasklug Nerd Font" :size 24)
