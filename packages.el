@@ -55,6 +55,8 @@
 (package! clipetty)
 (package! just-mode)
 (package! mise)
+(package! org-super-agenda)
+(package! comment-tags)
 (package! emacs-eat :recipe (:host github
                              :repo "kephale/emacs-eat"
                              :files("*.el"

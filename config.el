@@ -44,7 +44,7 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-one)
+(setq doom-theme 'doom-gruvbox)
 ;;(setq doom-theme 'doom-feather-dark)
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
@@ -121,6 +121,12 @@
   :defer t
   :hook
   (after-init . global-clipetty-mode))
+
+(use-package! org-super-agenda
+  :defer t)
+
+(use-package! comment-tags
+  :defer t)
 
 (setopt auto-revert-avoid-polling t)
 ;; Fix archaic defaults
@@ -306,10 +312,17 @@ If the new path's directories does not exist, create them."
                                     (when-let ((project (project-find-root dir)))
                                       (setup-mise-environment-for-project project)
                                       project)))
+
+(setq org-log-done 'time)
+(setq org-return-follows-link  t)
+(define-key global-map "\C-cl" 'org-store-link)
+(define-key global-map "\C-ca" 'org-agenda)
+(define-key global-map "\C-cc" 'org-capture)
+(setq org-hide-emphasis-markers t)
+
 ;; TODO states
 (setq org-todo-keywords
       '((sequence "TODO(t)" "PLANNING(p)" "IN-PROGRESS(i@/!)" "VERIFYING(v!)" "BLOCKED(b@)"  "|" "DONE(d!)" "OBE(o@!)" "WONT-DO(w@/!)" )))
-
 
 ;; TODO colors
 (setq org-todo-keyword-faces
@@ -350,6 +363,13 @@ If the new path's directories does not exist, create them."
                       ("backend" . ?k)
                       ("broken_code" . ?c)
                       ("frontend" . ?f)
+                      ("feature" . ?F)
+                      ("bug" . ?b)
+                      ("refactor" . ?r)
+
+                      ("pgmq" . ?P)
+                      ("kablamo.me" . ?K)
+                      ("thirstysink" . ?T)
 
                       ;; Special tags
                       ("CRITICAL" . ?x)
@@ -461,12 +481,18 @@ If the new path's directories does not exist, create them."
 ;; Tag colors
 (setq org-tag-faces
       '(
-        ("planning"  . (:foreground "mediumPurple1" :weight bold))
-        ("backend"   . (:foreground "royalblue1"    :weight bold))
-        ("frontend"  . (:foreground "forest green"  :weight bold))
-        ("QA"        . (:foreground "sienna"        :weight bold))
-        ("meeting"   . (:foreground "yellow1"       :weight bold))
-        ("CRITICAL"  . (:foreground "red1"          :weight bold))))
+        ("planning"    . (:foreground "mediumPurple1" :weight bold))
+        ("backend"     . (:foreground "royalblue1"    :weight bold))
+        ("frontend"    . (:foreground "forest green"  :weight bold))
+        ("feature"     . (:foreground "white"         :weight bold :background "black"))
+        ("bug"         . (:foreground "white"         :weight bold :background "maroon"))
+        ("refactor"    . (:foreground "white"         :weight bold :background "forest green"))
+        ("kablamo.me"  . (:foreground "orange"        :weight bold))
+        ("thirstysink" . (:foreground "teal"          :weight bold))
+        ("pgmq"        . (:foreground "dark-blue"     :weight bold))
+        ("QA"          . (:foreground "sienna"        :weight bold))
+        ("meeting"     . (:foreground "yellow1"       :weight bold))
+        ("CRITICAL"    . (:foreground "red1"          :weight bold))))
 
 (setq org-capture-templates
       '(
