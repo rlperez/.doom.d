@@ -2,12 +2,15 @@
 
 ;; Place your private configuration here! Remember, you do not need to run 'doom
 ;; sync' after modifying this file!
+(setq-default vterm-shell (executable-find "fish"))
+(setq eat-shell "fish")
 
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
 ;; (setq user-full-name "John Doe"
 ;;       user-mail-address "john@doe.com")
+(setq custom-theme-directory "~/.doom.d/themes")
 (setq user-full-name "Rigoberto L. Perez"
       user-mail-address "rlperez@kablamo.me")
 
@@ -30,15 +33,19 @@
 ;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
 ;; refresh your font settings. If Emacs still can't find your font, it likely
 ;; wasn't installed correctly. Font issues are rarely Doom issues!
-(setq doom-font (font-spec :family "JetBrains Mono Nerd Font" :size 18)
+(setq doom-font (font-spec :family "JetBrains Mono Nerd Font" :size 20)
       ;; (font-spec :family "Hack Nerd Font" :size 18)
       ;; (font-spec :family "Hasklug Nerd Font" :size 18)
-      doom-serif-font (font-spec :family "NotoSerif Nerd Font" :size 18)
+      doom-serif-font (font-spec :family "NotoSerif Nerd Font" :size 20)
       doom-big-font (font-spec :family "Hasklug Nerd Font" :size 24)
-      doom-variable-pitch-font (font-spec :family "Source Sans Pro" :size 16))
+      doom-variable-pitch-font (font-spec :family "Open Sans" :size 18))
 
 (setq kill-whole-line t)
 (global-auto-revert-mode 1)
+
+(use-package flycheck
+  :defer t
+  :hook (after-init . global-flycheck-mode))
 (after! flycheck (setq flycheck-checker-error-threshold 250))
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
@@ -47,15 +54,12 @@
 (setq doom-theme 'doom-gruvbox)
 ;;(setq doom-theme 'doom-feather-dark)
 
-;; This determines the style of line numbers in effect. If set to `nil', line
-;; numbers are disabled. For relative line numbers, set this to `relative'.
-(setq display-line-numbers-type t)
-(display-line-numbers-mode 0)
-
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
-(setq org-directory "~/org/")
+(setq org-directory "~/Documents/emacs-org/")
 
+;; Set left gutter line numbers to relative.
+(setq display-line-numbers-type 'relative)
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
@@ -200,6 +204,8 @@
                                      :enableJsonLogging nil
                                      :noDebug nil)))
 
+(setq lsp-inlay-hint-enable t)
+
 (after! eglot
   (setopt eglot-events-buffer-size 0
           eglot-ignored-server-capabilities '(:inlayHintProvider)
@@ -227,14 +233,9 @@ If the new path's directories does not exist, create them."
    (lambda() (setq-local show-trailing-whitespace t))))
 
 (after! emacs-eat
-  (setq eat-shell "fish")
-  (setq explicit-shell-file-name "/usr/bin/fish")
   (add-hook 'eshell-first-time-mode-hook
             #'eat-eshell-visual-command-mode)
-  (add-hook 'eshell-first-time-mode-hook #'eat-shell-mode)
-  (add-hook 'eat-mode-hook
-            (lambda ()
-              (setq-local explicit-shell-file-name "/usr/bin/fish"))))
+  (add-hook 'eshell-first-time-mode-hook #'eat-shell-mode))
 
 (after! web-mode
   (add-to-list 'auto-mode-alist '("\\.liquid\\'" . web-mode))
@@ -256,23 +257,13 @@ If the new path's directories does not exist, create them."
 
 (setopt show-trailing-whitespace t)
 
-(after! eglot
-  (setopt eglot-events-buffer-size 0
-          eglot-ignored-server-capabilities '(:inlayHintProvider)
-          eglot-confirm-server-initiated-edits nil))
-
 (after! vterm
   (add-hook
    'vterm-mode-hook
-   (lambda() (setq-local show-trailing-whitespace nil)))
-  (setopt vterm-shell "/bin/fish"))
+   (lambda() (setq-local show-trailing-whitespace nil))))
 
 (after! mise
   (add-hook 'after-init-hook #'global-mise-mode))
-
-(setq shell-file-name (executable-find "bash"))
-(setq-default vterm-shell (executable-find "fish"))
-(setq-default explicit-shell-file-name (executable-find "fish"))
 
 (menu-bar-mode 1)
 (tool-bar-mode 0)
@@ -313,209 +304,155 @@ If the new path's directories does not exist, create them."
                                       (setup-mise-environment-for-project project)
                                       project)))
 
-(setq org-log-done 'time)
-(setq org-return-follows-link  t)
-(define-key global-map "\C-cl" 'org-store-link)
-(define-key global-map "\C-ca" 'org-agenda)
-(define-key global-map "\C-cc" 'org-capture)
-(setq org-hide-emphasis-markers t)
+(after! org
+  (setq org-log-done 'time)
+  (setq org-return-follows-link  t)
+  (setq org-time-stamp-formats '("<%Y-%m-%d %a %H:%M>" . "[%Y-%m-%d %a %H:%M]"))
+  (define-key global-map "\C-cl" 'org-store-link)
+  (define-key global-map "\C-ca" 'org-agenda)
+  (define-key global-map "\C-cc" 'org-capture)
+  (setq org-hide-emphasis-markers t)
 
-;; TODO states
-(setq org-todo-keywords
-      '((sequence "TODO(t)" "PLANNING(p)" "IN-PROGRESS(i@/!)" "VERIFYING(v!)" "BLOCKED(b@)"  "|" "DONE(d!)" "OBE(o@!)" "WONT-DO(w@/!)" )))
+  ;; TODO states
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "PLANNING(p)" "IN-PROGRESS(i@/!)" "VERIFYING(v!)" "BLOCKED(b@)"  "|" "DONE(d!)" "OBE(o@!)" "WONT-DO(w@/!)" )))
 
-;; TODO colors
-(setq org-todo-keyword-faces
-      '(
-        ("TODO" . (:foreground "GoldenRod" :weight bold))
-        ("PLANNING" . (:foreground "DeepPink" :weight bold))
-        ("IN-PROGRESS" . (:foreground "Cyan" :weight bold))
-        ("VERIFYING" . (:foreground "DarkOrange" :weight bold))
-        ("BLOCKED" . (:foreground "Red" :weight bold))
-        ("DONE" . (:foreground "LimeGreen" :weight bold))
-        ("OBE" . (:foreground "LimeGreen" :weight bold))
-        ("WONT-DO" . (:foreground "LimeGreen" :weight bold))))
+  ;; TODO colors
+  (setq org-todo-keyword-faces
+        '(
+          ("TODO" . (:foreground "GoldenRod" :weight bold))
+          ("PLANNING" . (:foreground "DeepPink" :weight bold))
+          ("IN-PROGRESS" . (:foreground "Cyan" :weight bold))
+          ("VERIFYING" . (:foreground "DarkOrange" :weight bold))
+          ("BLOCKED" . (:foreground "Red" :weight bold))
+          ("DONE" . (:foreground "LimeGreen" :weight bold))
+          ("OBE" . (:foreground "LimeGreen" :weight bold))
+          ("WONT-DO" . (:foreground "LimeGreen" :weight bold))))
 
-(setq org-tag-alist '(
-                      ;; Ticket types
-                      (:startgroup . nil)
-                      ("@bug" . ?b)
-                      ("@feature" . ?u)
-                      ("@spike" . ?j)
-                      (:endgroup . nil)
+  (setq org-tag-alist '(
+                        ;; Ticket types
+                        (:startgroup . nil)
+                        ("@bug" . ?b)
+                        ("@feature" . ?u)
+                        ("@spike" . ?j)
+                        (:endgroup . nil)
 
-                      ;; Ticket flags
-                      ("@write_future_ticket" . ?w)
-                      ("@emergency" . ?e)
-                      ("@research" . ?r)
+                        ;; Ticket flags
+                        ("@write_future_ticket" . ?w)
+                        ("@emergency" . ?e)
+                        ("@research" . ?r)
 
-                      ;; Meeting types
-                      (:startgroup . nil)
-                      ("big_sprint_review" . ?i)
-                      ("cents_sprint_retro" . ?n)
-                      ("dsu" . ?d)
-                      ("grooming" . ?g)
-                      ("sprint_retro" . ?s)
-                      (:endgroup . nil)
+                        ;; Meeting types
+                        (:startgroup . nil)
+                        ("po_demo" . ?d)
+                        ("big_sprint_review" . ?i)
+                        ("cents_sprint_retro" . ?n)
+                        ("grooming" . ?g)
+                        ("sprint_retro" . ?s)
+                        ("1on1" . ?O)
+                        (:endgroup . nil)
 
-                      ;; Code TODOs tags
-                      ("QA" . ?q)
-                      ("backend" . ?k)
-                      ("broken_code" . ?c)
-                      ("frontend" . ?f)
-                      ("feature" . ?F)
-                      ("bug" . ?b)
-                      ("refactor" . ?r)
+                        ;; Code TODOs tags
+                        ("QA" . ?q)
+                        ("backend" . ?k)
+                        ("broken_code" . ?c)
+                        ("frontend" . ?f)
+                        ("feature" . ?F)
+                        ("bug" . ?b)
+                        ("refactor" . ?r)
 
-                      ("pgmq" . ?P)
-                      ("kablamo.me" . ?K)
-                      ("thirstysink" . ?T)
+                        ("pgmq" . ?P)
+                        ("kablamo.me" . ?K)
+                        ("thirstysink" . ?T)
 
-                      ;; Special tags
-                      ("CRITICAL" . ?x)
-                      ("obstacle" . ?o)
+                        ;; Special tags
+                        ("CRITICAL" . ?x)
+                        ("obstacle" . ?o)
 
-                      ;; Meeting tags
-                      ("HR" . ?h)
-                      ("general" . ?l)
-                      ("meeting" . ?m)
-                      ("misc" . ?z)
-                      ("planning" . ?p)
+                        ;; Meeting tags
+                        ("HR" . ?h)
+                        ("general" . ?l)
+                        ("meeting" . ?m)
+                        ("misc" . ?z)
+                        ("planning" . ?p)
 
-                      ;; Work Log Tags
-                      ("accomplishment" . ?a)))
+                        ;; Work Log Tags
+                        ("accomplishment" . ?a)))
 
-;; Agenda View "d"
-(defun air-org-skip-subtree-if-priority (priority)
-  "Skip an agenda subtree if it has a priority of PRIORITY.
+  ;; Agenda View "d"
+  (defun air-org-skip-subtree-if-priority (priority)
+    "Skip an agenda subtree if it has a priority of PRIORITY.
 
   PRIORITY may be one of the characters ?A, ?B, or ?C."
-  (let ((subtree-end (save-excursion (org-end-of-subtree t)))
-        (pri-value (* 1000 (- org-lowest-priority priority)))
-        (pri-current (org-get-priority (thing-at-point 'line t))))
-    (if (= pri-value pri-current)
-        subtree-end
-      nil)))
+    (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+          (pri-value (* 1000 (- org-lowest-priority priority)))
+          (pri-current (org-get-priority (thing-at-point 'line t))))
+      (if (= pri-value pri-current)
+          subtree-end
+        nil)))
 
-(setq org-agenda-skip-deadline-if-done t)
+  (setq org-agenda-skip-deadline-if-done t)
 
-(setq org-agenda-custom-commands
-      '(
-        ;; James's Super View
-        ("j" "James's Super View"
-         (
-          (agenda ""
-                  (
-                   (org-agenda-remove-tags t)
-                   (org-agenda-span 7)
-                   )
-                  )
+  (setq org-agenda-custom-commands
+        '(
+          ;; James's Super View
+          ("j" "James's Super View"
+           (
+            (agenda ""
+                    (
+                     (org-agenda-remove-tags t)
+                     (org-agenda-span 7)
+                     )
+                    )
 
-          (alltodo ""
-                   (
-                    ;; Remove tags to make the view cleaner
-                    (org-agenda-remove-tags t)
-                    (org-agenda-prefix-format "  %t  %s")
-                    (org-agenda-overriding-header "CURRENT STATUS")
+            (alltodo ""
+                     (
+                      ;; Remove tags to make the view cleaner
+                      (org-agenda-remove-tags t)
+                      (org-agenda-prefix-format "  %t  %s")
+                      (org-agenda-overriding-header "CURRENT STATUS")))))))
 
-                    ;; Define the super agenda groups (sorts by order)
-                    (org-super-agenda-groups
-                     '(
-                       ;; Filter where tag is CRITICAL
-                       (:name "Critical Tasks"
-                        :tag "CRITICAL"
-                        :order 0
-                        )
-                       ;; Filter where TODO state is IN-PROGRESS
-                       (:name "Currently Working"
-                        :todo "IN-PROGRESS"
-                        :order 1
-                        )
-                       ;; Filter where TODO state is PLANNING
-                       (:name "Planning Next Steps"
-                        :todo "PLANNING"
-                        :order 2
-                        )
-                       ;; Filter where TODO state is BLOCKED or where the tag is obstacle
-                       (:name "Problems & Blockers"
-                        :todo "BLOCKED"
-                        :tag "obstacle"
-                        :order 3
-                        )
-                       ;; Filter where tag is @write_future_ticket
-                       (:name "Tickets to Create"
-                        :tag "@write_future_ticket"
-                        :order 4
-                        )
-                       ;; Filter where tag is @research
-                       (:name "Research Required"
-                        :tag "@research"
-                        :order 7
-                        )
-                       ;; Filter where tag is meeting and priority is A (only want TODOs from meetings)
-                       (:name "Meeting Action Items"
-                        :and (:tag "meeting" :priority "A")
-                        :order 8
-                        )
-                       ;; Filter where state is TODO and the priority is A and the tag is not meeting
-                       (:name "Other Important Items"
-                        :and (:todo "TODO" :priority "A" :not (:tag "meeting"))
-                        :order 9
-                        )
-                       ;; Filter where state is TODO and priority is B
-                       (:name "General Backlog"
-                        :and (:todo "TODO" :priority "B")
-                        :order 10
-                        )
-                       ;; Filter where the priority is C or less (supports future lower priorities)
-                       (:name "Non Critical"
-                        :priority<= "C"
-                        :order 11
-                        )
-                       ;; Filter where TODO state is VERIFYING
-                       (:name "Currently Being Verified"
-                        :todo "VERIFYING"
-                        :order 20
-                        )))))))))
+  ;; Tag colors
+  (setq org-tag-faces
+        '(
+          ("1on1"        . (:foreground "teal"          :weight bold :background "dark-blue"))
+          ("planning"    . (:foreground "mediumPurple1" :weight bold))
+          ("meeting"     . (:foreground "white"         :weight bold :background "dark-blue"))
+          ("po_demo"     . (:foreground "white"         :weight bold :background "purlple"))
+          ("backend"     . (:foreground "royalblue1"    :weight bold))
+          ("frontend"    . (:foreground "forest green"  :weight bold))
+          ("feature"     . (:foreground "white"         :weight bold :background "black"))
+          ("bug"         . (:foreground "white"         :weight bold :background "maroon"))
+          ("refactor"    . (:foreground "white"         :weight bold :background "forest green"))
+          ("kablamo.me"  . (:foreground "orange"        :weight bold))
+          ("thirstysink" . (:foreground "teal"          :weight bold))
+          ("pgmq"        . (:foreground "dark-blue"     :weight bold))
+          ("QA"          . (:foreground "sienna"        :weight bold))
+          ("meeting"     . (:foreground "yellow1"       :weight bold))
+          ("CRITICAL"    . (:foreground "red1"          :weight bold))))
 
-;; Tag colors
-(setq org-tag-faces
-      '(
-        ("planning"    . (:foreground "mediumPurple1" :weight bold))
-        ("backend"     . (:foreground "royalblue1"    :weight bold))
-        ("frontend"    . (:foreground "forest green"  :weight bold))
-        ("feature"     . (:foreground "white"         :weight bold :background "black"))
-        ("bug"         . (:foreground "white"         :weight bold :background "maroon"))
-        ("refactor"    . (:foreground "white"         :weight bold :background "forest green"))
-        ("kablamo.me"  . (:foreground "orange"        :weight bold))
-        ("thirstysink" . (:foreground "teal"          :weight bold))
-        ("pgmq"        . (:foreground "dark-blue"     :weight bold))
-        ("QA"          . (:foreground "sienna"        :weight bold))
-        ("meeting"     . (:foreground "yellow1"       :weight bold))
-        ("CRITICAL"    . (:foreground "red1"          :weight bold))))
-
-(setq org-capture-templates
-      '(
-        ("j" "Work Log Entry"
-         entry (file+datetree "~/org/work-log.org")
-         "* %?"
-         :empty-lines 0)
-        ("n" "Note"
-         entry (file+headline "~/org/notes.org" "Random Notes")
-         "** %?"
-         :empty-lines 0)
-        ("g" "General To-Do"
-         entry (file+headline "~/org/todos.org" "General Tasks")
-         "* TODO [#B] %?\n:Created: %T\n "
-         :empty-lines 0)
-	("c" "Code To-Do"
-         entry (file+headline "~/org/todos.org" "Code Related Tasks")
-         "* TODO [#B] %?\n:Created: %T\n%i\n%a\nProposed Solution: "
-         :empty-lines 0)
-	("m" "Meeting"
-         entry (file+datetree "~/org/meetings.org")
-         "* %? :meeting:%^g \n:Created: %T\n** Attendees\n*** \n** Notes\n** Action Items\n*** TODO [#A] "
-         :tree-type week
-         :clock-in t
-         :clock-resume t
-         :empty-lines 0)))
+  (setq org-capture-templates
+        '(
+          ("j" "Work Log Entry"
+           entry (file+datetree "~/Documents/emacs-org/work-log.org")
+           "* %?"
+           :empty-lines 0)
+          ("n" "Note"
+           entry (file+headline "~/Documents/emacs-org/notes.org" "Random Notes")
+           "** %?"
+           :empty-lines 0)
+          ("g" "General To-Do"
+           entry (file+headline "~/Documents/emacs-org/todos.org" "General Tasks")
+           "* TODO [#B] %?\n:Created: %T\n "
+           :empty-lines 0)
+          ("c" "Code To-Do"
+           entry (file+headline "~/Documents/emacs-org/todos.org" "Code Related Tasks")
+           "* TODO [#B] %?\n:Created: %T\n%i\n%a\nProposed Solution: "
+           :empty-lines 0)
+          ("m" "Meeting"
+           entry (file+datetree "~/Documents/emacs-org/meetings.org")
+           "* %? :meeting:%^g \n:Created: %T\n** Attendees\n*** \n** Notes\n** Action Items\n*** [#A] "
+           :tree-type week
+           :clock-in t
+           :clock-resume t
+           :empty-lines 0))))

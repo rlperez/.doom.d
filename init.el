@@ -3,6 +3,8 @@
 ;; This file controls what Doom modules are enabled and what order they load
 ;; in. Remember to run 'doom sync' after modifying it!
 
+;; (setq shell-file-name (executable-find "bash"))
+
 ;; NOTE Press 'SPC h d h' (or 'C-h d h' for non-vim users) to access Doom's
 ;;      documentation. There you'll find a link to Doom's Module Index where all
 ;;      of our modules are listed, including what flags they support.
@@ -13,6 +15,9 @@
 ;;
 ;;      Alternatively, press 'gd' (or 'C-c c d') on a module to browse its
 ;;      directory (for easy access to its source code).
+(setq shell-file-name (executable-find "bash"))
+(setenv "SHELL" shell-file-name)
+(setq explicit-shell-file-name shell-file-name)
 
 (doom! :input
        ;;bidi              ; (tfel ot) thgir etirw uoy gnipleh
@@ -32,7 +37,7 @@
        ;;deft              ; notational velocity for Emacs
        doom              ; what makes DOOM look the way it does
        doom-dashboard    ; a nifty splash screen for Emacs
-       ;;doom-quit         ; DOOM quit-message prompts when you quit Emacs
+       doom-quit         ; DOOM quit-message prompts when you quit Emacs
        (emoji +unicode)  ; 🙂
        hl-todo           ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
        ;;indent-guides   ; highlighted indent columns
@@ -43,7 +48,7 @@
        ;;neotree           ; a project drawer, like NERDTree for vim
        ophints           ; highlight the region an operation acts on
        (popup +defaults)   ; tame sudden yet inevitable temporary windows
-       ;;tabs              ; a tab bar for Emacs
+       tabs              ; a tab bar for Emacs
        ;;treemacs          ; a project drawer, like neotree but cooler
        unicode           ; extended unicode support for various languages
        ;;(vc-gutter +pretty) ; vcs diff in the fringe
@@ -91,7 +96,7 @@
        ;;collab            ; buffers with friends
        (debugger +lsp)     ; FIXME stepping through code, to help you add bugs
        direnv
-       docker
+       (docker +lsp)
        editorconfig        ; let someone else argue about tabs vs spaces
        ;;ein               ; tame Jupyter notebooks with emacs
        (eval +overlay)     ; run code, run (also, repls)
@@ -119,7 +124,7 @@
        ;;common-lisp       ; if you've seen one lisp, you've seen them all
        ;;coq               ; proofs-as-programs
        ;;crystal           ; ruby at the speed of c
-       (csharp +dotnet +lsp +tree-sitter)            ; unity, .NET, and mono shenanigans
+       (csharp +dotnet +lsp +tree-sitter) ; unity, .NET, and mono shenanigans
        data                ; config/data formats
        (dart +lsp +flutter); paint ui and not much else
        ;;dhall
@@ -157,7 +162,7 @@
        ;;plantuml          ; diagrams for confusing people more
        ;;graphviz          ; diagrams for confusing yourself even more
        ;;purescript        ; javascript, but functional
-       python              ; beautiful is better than ugly
+       (python +lsp +pyright) ; beautiful is better than ugly
        ;;qt                ; the 'cutest' gui framework ever
        ;;racket            ; a DSL for DSLs
        ;;raku              ; the artist formerly known as perl6
